@@ -94,6 +94,61 @@ db.query(sql, params, (err, result) => {
   });
 }); 
 
+//START DEPT Queries
+
+app.get('/api/departments', (req, res) => {
+  const sql = `SELECT * departments`;
+  db.query(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: rows
+    });
+  });
+});
+
+app.get('/api/departments/:id', (req, res) => {
+  const sql = `SELECT * FROM departments WHERE id = ?`;
+  const params = [req.params.id];
+  db.query(sql, params, (err, row) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: row
+    });
+  });
+});
+
+//update employee role
+app.put('/api/employees/:id', (req, res) => {
+  const sql = `UPDATE employees SET role_id = ?
+              WHERE id =?`;
+  const params = [req.body.role_id, req.params.id];
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message});
+        //check if found
+    } else if (!result.affectedRows) {
+      res.json({ 
+        message: 'Employee not found'
+      });
+    } else {
+      res.json({
+        message: 'success',
+        data: req.body,
+        changes: result.affectedRows
+      });
+    }
+    });
+  });
+
+
 
 //catch all
 app.use((req, res) => {
