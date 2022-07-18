@@ -17,9 +17,14 @@ const db = mysql.createConnection(
     },
     console.log('Connected to employee_tracker_db')
   );
+  
 //SELECT ALL Query
 app.get('/api/employees', (req, res) => {
-  const sql = `SELECT * FROM employees`;
+  const sql = `SELECT employees.*,roles.job_title
+              AS Role
+              FROM employees
+              LEFT JOIN roles
+              ON employees.role_id = roles.id`;
   db.query(sql, (err, rows) => {
     if (err) {
 res.status(500).json({ error: err.message });
@@ -33,20 +38,25 @@ res.json({
  });
 
 //SELECT ONE Query
-// app.get('/api/employees/:id', (req, res) => {
-//   const sql = `SELECT * FROM employees WHERE id = ?`;
-//   const params = [req.params.id];
-//   db.query(sql, params, (err, row) => {
-//     if (err) {
-//       res.status(400).json({ error: err.message });
-//       return;
-//     }
-//     res.json({
-//       message: 'success',
-//       data: row
-//     });
-//   })
-// });
+app.get('/api/employees/:id', (req, res) => {
+  const sql = `SELECT employees.*, roles.job_title
+              AS Role
+              FROM employees
+              LEFT JOIN roles
+              ON employees.role_id = roles.id
+              WHERE employees.id = ?`;
+  const params = [req.params.id];
+  db.query(sql, params, (err, row) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: row
+    });
+  })
+});
 
 //DELETE ONE Query by Id
 app.delete('/api/employees/:id', (req, res) => {
@@ -68,19 +78,29 @@ app.delete('/api/employees/:id', (req, res) => {
 
 
 //CREATE ONE Query New
-// const sql = `INSERT INTO employees(first_name, last_name, hire_date, role_id, manager_id)
-//         Values (?,?,?,?,?)`;
-// const params = ['Ronald', 'Firbank', '2018-01-05', 1, 2];
-// db.query(sql, params, (err, result) => {
-//   if(err) {
-//     console.log(err);
-//   }
-//     console.log(result);
-// });
+app.post('/api/employees', ({ body }, res) => {
+const sql = `INSERT INTO employees(first_name, last_name, hire_date, role_id, manager_id)
+        VALUES (?,?,?,?,?)`;
+const params = [body.first_name, body.last_name, body.hire_date, body.role_id, body. manager_id];
+db.query(sql, params, (err, result) => {
+  if(err) {
+    res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: body
+    });
+  });
+}); 
 
+
+//catch all
 app.use((req, res) => {
   res.status(404).end();
 });
+
+//port info
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
