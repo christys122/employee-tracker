@@ -5,6 +5,7 @@ const db = require('../db/connection');
 
 
 //SELECT ALL Employees Query
+ 
 router.get('/employees', (req, res) => {
     const sql = `SELECT employees.*,roles.job_title
                 AS Role
@@ -22,8 +23,9 @@ router.get('/employees', (req, res) => {
     });
   });
    });
-  
+
   //SELECT ONE employee by Id
+  
   router.get('/employees/:id', (req, res) => {
     const sql = `SELECT employees.*, roles.job_title
                 AS Role
@@ -43,6 +45,7 @@ router.get('/employees', (req, res) => {
       });
     })
   });
+
   
   //DELETE ONE Employee by Id
   router.delete('/employees/:id', (req, res) => {
